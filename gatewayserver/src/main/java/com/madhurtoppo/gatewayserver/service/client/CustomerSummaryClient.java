@@ -10,10 +10,10 @@ import org.springframework.web.service.annotation.GetExchange;
 import reactor.core.publisher.Mono;
 
 
-public interface CustomerServiceClient {
+public interface CustomerSummaryClient {
 
     @GetExchange(value = "/eazybank/customer/api/fetch", accept = "application/json")
-    Mono<ResponseEntity<CustomerDto>> fetchCustomerSummary(@RequestParam String mobileNumber);
+    Mono<ResponseEntity<CustomerDto>> fetchCustomerDetails(@RequestParam("mobileNumber") String mobileNumber);
 
 
     @GetExchange(value = "/eazybank/accounts/api/fetch", accept = "application/json")
