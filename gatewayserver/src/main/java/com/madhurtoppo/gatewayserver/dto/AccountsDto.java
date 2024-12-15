@@ -16,7 +16,7 @@ public class AccountsDto {
     private String accountType;
 
     @NotEmpty(message = "Branch name is required")
-    private String branchName;
+    private String branchAddress;
 
     private boolean isActive;
 
