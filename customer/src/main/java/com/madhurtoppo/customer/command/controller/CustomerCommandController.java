@@ -71,6 +71,7 @@ public class CustomerCommandController {
                 .customerId(customerId)
                 .activeSw(CustomerConstants.IN_ACTIVE_SW)
                 .build();
+        commandGateway.sendAndWait(deleteCustomerCommand);
         return ResponseEntity
                 .status(org.springframework.http.HttpStatus.OK)
                 .body(new ResponseDto(CustomerConstants.STATUS_200, CustomerConstants.STATUS_200));
