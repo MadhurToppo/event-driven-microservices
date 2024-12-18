@@ -40,7 +40,7 @@ public class CustomerCommandController {
                 .email(customerDto.getEmail())
                 .name(customerDto.getName())
                 .mobileNumber(customerDto.getMobileNumber())
-                .isActive(CustomerConstants.ACTIVE_SW).build();
+                .activeSw(CustomerConstants.ACTIVE_SW).build();
         commandGateway.sendAndWait(customerCommand);
         return ResponseEntity
                 .status(org.springframework.http.HttpStatus.CREATED)
@@ -55,7 +55,7 @@ public class CustomerCommandController {
                 .email(customerDto.getEmail())
                 .name(customerDto.getName())
                 .mobileNumber(customerDto.getMobileNumber())
-                .isActive(CustomerConstants.ACTIVE_SW).build();
+                .activeSw(CustomerConstants.ACTIVE_SW).build();
         commandGateway.sendAndWait(updateCustomerCommand);
         return ResponseEntity
                 .status(org.springframework.http.HttpStatus.OK)
@@ -69,7 +69,7 @@ public class CustomerCommandController {
             message = "CustomerId is invalid") String customerId) {
         DeleteCustomerCommand deleteCustomerCommand = DeleteCustomerCommand.builder()
                 .customerId(customerId)
-                .isActive(CustomerConstants.IN_ACTIVE_SW)
+                .activeSw(CustomerConstants.IN_ACTIVE_SW)
                 .build();
         return ResponseEntity
                 .status(org.springframework.http.HttpStatus.OK)

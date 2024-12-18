@@ -7,6 +7,6 @@ import lombok.Data;
 public class CustomerDeletedEvent {
 
     private String customerId;
-    private String isActive;
+    private boolean activeSw;
 
 }

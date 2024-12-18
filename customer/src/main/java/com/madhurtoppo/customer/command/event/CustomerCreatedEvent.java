@@ -9,5 +9,5 @@ public class CustomerCreatedEvent {
     private String name;
     private String email;
     private String mobileNumber;
-    private String isActive;
+    private boolean activeSw;
 }

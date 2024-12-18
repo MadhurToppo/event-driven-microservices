@@ -14,6 +14,6 @@ public class UpdateCustomerCommand {
     private final String name;
     private final String email;
     private final String mobileNumber;
-    private final boolean isActive;
+    private final boolean activeSw;
 
 }
