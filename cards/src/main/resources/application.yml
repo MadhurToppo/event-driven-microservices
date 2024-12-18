@@ -4,7 +4,7 @@ spring:
   application:
     name: "cards"
   datasource:
-    url: jdbc:h2:file:~/cards;AUTO_SERVER=true
+    url: jdbc:h2:file:~/workspace/event-driven-microservices/cards;AUTO_SERVER=true
     driverClassName: org.h2.Driver
     username: sa
     password: ''

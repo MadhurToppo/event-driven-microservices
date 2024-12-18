@@ -1,13 +1,16 @@
 package com.madhurtoppo.customer.service;
 
+import com.madhurtoppo.customer.command.event.CustomerUpdatedEvent;
 import com.madhurtoppo.customer.dto.CustomerDto;
+import com.madhurtoppo.customer.entity.Customer;
+
 
 public interface ICustomerService {
 
     /**
      * @param customerDto - CustomerDto Object
      */
-    void createCustomer(CustomerDto customerDto);
+    void createCustomer(Customer customerDto);
 
     /**
      * @param mobileNumber - Input Mobile Number
@@ -19,7 +22,7 @@ public interface ICustomerService {
      * @param customerDto - CustomerDto Object
      * @return boolean indicating if the update of Account details is successful or not
      */
-    boolean updateCustomer(CustomerDto customerDto);
+    boolean updateCustomer(CustomerUpdatedEvent customerDto);
 
     /**
      * @param customerId - Input Customer ID

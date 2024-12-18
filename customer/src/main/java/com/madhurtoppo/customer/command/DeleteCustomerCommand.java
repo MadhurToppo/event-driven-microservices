@@ -11,6 +11,6 @@ public class DeleteCustomerCommand {
 
     @TargetAggregateIdentifier
     private final String customerId;
-    private final boolean isActive;
+    private final boolean activeSw;
 
 }
