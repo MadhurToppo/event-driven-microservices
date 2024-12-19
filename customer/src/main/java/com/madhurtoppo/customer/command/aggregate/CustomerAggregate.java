@@ -6,17 +6,12 @@ import com.madhurtoppo.customer.command.UpdateCustomerCommand;
 import com.madhurtoppo.customer.command.event.CustomerCreatedEvent;
 import com.madhurtoppo.customer.command.event.CustomerDeletedEvent;
 import com.madhurtoppo.customer.command.event.CustomerUpdatedEvent;
-import com.madhurtoppo.customer.entity.Customer;
-import com.madhurtoppo.customer.exception.CustomerAlreadyExistsException;
-import com.madhurtoppo.customer.repository.CustomerRepository;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.springframework.beans.BeanUtils;
-
-import java.util.Optional;
 
 
 @Aggregate
@@ -35,13 +30,7 @@ public class CustomerAggregate {
 
 
     @CommandHandler
-    public CustomerAggregate(CreateCustomerCommand createCustomerCommand, CustomerRepository customerRepository) {
-        Optional<Customer> optionalCustomer =
-                customerRepository.findByMobileNumberAndActiveSw(createCustomerCommand.getMobileNumber(), true);
-        if (optionalCustomer.isPresent()) {
-            throw new CustomerAlreadyExistsException(
-                    "Customer already registered with Mobile number" + createCustomerCommand.getMobileNumber());
-        }
+    public CustomerAggregate(CreateCustomerCommand createCustomerCommand) {
         CustomerCreatedEvent customerCreatedEvent = new CustomerCreatedEvent();
         BeanUtils.copyProperties(createCustomerCommand, customerCreatedEvent);
         AggregateLifecycle.apply(customerCreatedEvent);
@@ -65,11 +54,14 @@ public class CustomerAggregate {
         AggregateLifecycle.apply(customerUpdatedEvent);
     }
 
+
     @EventSourcingHandler
     public void on(CustomerUpdatedEvent customerUpdatedEvent) {
         this.name = customerUpdatedEvent.getName();
         this.email = customerUpdatedEvent.getEmail();
     }
+
+
     @CommandHandler
     public void handle(DeleteCustomerCommand deleteCustomerCommand) {
         CustomerDeletedEvent customerDeletedEvent = new CustomerDeletedEvent();
@@ -77,8 +69,10 @@ public class CustomerAggregate {
         AggregateLifecycle.apply(customerDeletedEvent);
     }
 
+
     @EventSourcingHandler
     public void on(CustomerDeletedEvent customerDeletedEvent) {
         this.activeSw = customerDeletedEvent.isActiveSw();
     }
+
 }
