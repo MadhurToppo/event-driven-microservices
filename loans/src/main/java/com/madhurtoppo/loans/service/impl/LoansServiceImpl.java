@@ -1,5 +1,6 @@
 package com.madhurtoppo.loans.service.impl;
 
+import com.madhurtoppo.loans.command.event.LoanUpdatedEvent;
 import com.madhurtoppo.loans.constants.LoansConstants;
 import com.madhurtoppo.loans.dto.LoansDto;
 import com.madhurtoppo.loans.entity.Loans;
@@ -14,41 +15,27 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.Random;
 
+
 @Service
 @AllArgsConstructor
 public class LoansServiceImpl implements ILoansService {
 
     private LoansRepository loansRepository;
 
-    /**
-     * @param mobileNumber - Mobile Number of the Customer
-     */
-    @Override
-    public void createLoan(String mobileNumber) {
-        Optional<Loans> optionalLoan = loansRepository.findByMobileNumberAndActiveSw(mobileNumber,
-                LoansConstants.ACTIVE_SW);
-        if (optionalLoan.isPresent()) {
-            throw new LoanAlreadyExistsException("Loan already registered with given mobileNumber " + mobileNumber);
-        }
-        loansRepository.save(createNewLoan(mobileNumber));
-    }
 
     /**
-     * @param mobileNumber - Mobile Number of the Customer
-     * @return the new loan details
+     * @param loan - Loans object
      */
-    private Loans createNewLoan(String mobileNumber) {
-        Loans newLoan = new Loans();
-        long randomLoanNumber = 1000000000L + new Random().nextInt(900000000);
-        newLoan.setLoanNumber(randomLoanNumber);
-        newLoan.setMobileNumber(mobileNumber);
-        newLoan.setLoanType(LoansConstants.HOME_LOAN);
-        newLoan.setTotalLoan(LoansConstants.NEW_LOAN_LIMIT);
-        newLoan.setAmountPaid(0);
-        newLoan.setOutstandingAmount(LoansConstants.NEW_LOAN_LIMIT);
-        newLoan.setActiveSw(LoansConstants.ACTIVE_SW);
-        return newLoan;
+    @Override
+    public void createLoan(Loans loan) {
+        Optional<Loans> optionalLoans = loansRepository.findByMobileNumberAndActiveSw(loan.getMobileNumber(),
+                LoansConstants.ACTIVE_SW);
+        if (optionalLoans.isPresent()) {
+            throw new LoanAlreadyExistsException("Loan already registered with given mobileNumber " + loan.getMobileNumber());
+        }
+        loansRepository.save(loan);
     }
+
 
     /**
      * @param mobileNumber - Input mobile Number
@@ -62,19 +49,21 @@ public class LoansServiceImpl implements ILoansService {
         return LoansMapper.mapToLoansDto(loan, new LoansDto());
     }
 
+
     /**
-     * @param loansDto - LoansDto Object
+     * @param event - LoanUpdatedEvent Object
      * @return boolean indicating if the update of loan details is successful or not
      */
     @Override
-    public boolean updateLoan(LoansDto loansDto) {
-        Loans loan = loansRepository.findByMobileNumberAndActiveSw(loansDto.getMobileNumber(),
-                LoansConstants.ACTIVE_SW).orElseThrow(
-                () -> new ResourceNotFoundException("Loan", "LoanNumber", loansDto.getLoanNumber().toString()));
-        LoansMapper.mapToLoans(loansDto, loan);
+    public boolean updateLoan(LoanUpdatedEvent event) {
+        Loans loan = loansRepository.findByMobileNumberAndActiveSw(event.getMobileNumber(),
+                LoansConstants.ACTIVE_SW).orElseThrow(() -> new ResourceNotFoundException("Loan", "mobileNumber",
+                event.getMobileNumber()));
+        LoansMapper.mapEventToLoan(event, loan);
         loansRepository.save(loan);
         return true;
     }
+
 
     /**
      * @param loanNumber - Input Loan Number
