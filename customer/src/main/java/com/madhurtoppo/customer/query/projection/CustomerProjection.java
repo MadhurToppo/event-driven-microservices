@@ -6,6 +6,7 @@ import com.madhurtoppo.customer.command.event.CustomerUpdatedEvent;
 import com.madhurtoppo.customer.entity.Customer;
 import com.madhurtoppo.customer.service.ICustomerService;
 import lombok.RequiredArgsConstructor;
+import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@ProcessingGroup("customer-group")
 public class CustomerProjection {
 
     private final ICustomerService iCustomerService;
@@ -25,10 +27,13 @@ public class CustomerProjection {
         iCustomerService.createCustomer(customerEntity);
     }
 
+
     @EventHandler
     public void on(CustomerUpdatedEvent customerUpdatedEvent) {
+        // throw new RuntimeException("It is a bad day");
         iCustomerService.updateCustomer(customerUpdatedEvent);
     }
+
 
     @EventHandler
     public void on(CustomerDeletedEvent customerDeletedEvent) {
