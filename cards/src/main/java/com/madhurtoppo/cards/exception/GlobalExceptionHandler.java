@@ -1,6 +1,7 @@
 package com.madhurtoppo.cards.exception;
 
 import com.madhurtoppo.common.dto.ErrorResponseDto;
+import org.axonframework.commandhandling.CommandExecutionException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -35,9 +37,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(validationErrors, HttpStatus.BAD_REQUEST);
     }
 
+
+    @ExceptionHandler(CommandExecutionException.class)
+    public ResponseEntity<ErrorResponseDto> handleGlobalException(CommandExecutionException exception,
+            WebRequest webRequest) {
+        ErrorResponseDto errorResponseDTO = new ErrorResponseDto(
+                webRequest.getDescription(false),
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "CommandExecutionException occurred due to: " + exception.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorResponseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDto> handleGlobalException(Exception exception,
-                                                                  WebRequest webRequest) {
+            WebRequest webRequest) {
         ErrorResponseDto errorResponseDTO = new ErrorResponseDto(
                 webRequest.getDescription(false),
                 HttpStatus.INTERNAL_SERVER_ERROR,
@@ -48,9 +64,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(errorResponseDTO);
     }
 
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponseDto> handleResourceNotFoundException(ResourceNotFoundException exception,
-                                                                            WebRequest webRequest) {
+            WebRequest webRequest) {
         ErrorResponseDto errorResponseDTO = new ErrorResponseDto(
                 webRequest.getDescription(false),
                 HttpStatus.NOT_FOUND,
@@ -60,9 +77,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponseDTO, HttpStatus.NOT_FOUND);
     }
 
+
     @ExceptionHandler(CardAlreadyExistsException.class)
     public ResponseEntity<ErrorResponseDto> handleCardAlreadyExistsException(CardAlreadyExistsException exception,
-                                                                          WebRequest webRequest){
+            WebRequest webRequest) {
         ErrorResponseDto errorResponseDTO = new ErrorResponseDto(
                 webRequest.getDescription(false),
                 HttpStatus.BAD_REQUEST,

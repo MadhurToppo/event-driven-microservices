@@ -46,5 +46,9 @@ logging:
     console: "%green(%d{HH:mm:ss.SSS}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %msg%n"
 
 axon:
+  eventhandling:
+    processors:
+      card-group:
+        mode: subscribing
   axonserver:
     servers: localhost:8124
