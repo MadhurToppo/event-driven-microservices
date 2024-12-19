@@ -1,5 +1,6 @@
 package com.madhurtoppo.accounts.mapper;
 
+import com.madhurtoppo.accounts.command.event.AccountUpdatedEvent;
 import com.madhurtoppo.accounts.dto.AccountsDto;
 import com.madhurtoppo.accounts.entity.Accounts;
 
@@ -18,6 +19,12 @@ public class AccountsMapper {
         accounts.setAccountType(accountsDto.getAccountType());
         accounts.setBranchAddress(accountsDto.getBranchAddress());
         return accounts;
+    }
+
+    public static Accounts mapEventToAccount(AccountUpdatedEvent event, Accounts account) {
+        account.setAccountType(event.getAccountType());
+        account.setBranchAddress(event.getBranchAddress());
+        return account;
     }
 
 }
