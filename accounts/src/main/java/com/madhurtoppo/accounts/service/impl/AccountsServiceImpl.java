@@ -9,7 +9,9 @@ import com.madhurtoppo.accounts.exception.ResourceNotFoundException;
 import com.madhurtoppo.accounts.mapper.AccountsMapper;
 import com.madhurtoppo.accounts.repository.AccountsRepository;
 import com.madhurtoppo.accounts.service.IAccountsService;
+import com.madhurtoppo.common.event.AccountDataChangedEvent;
 import lombok.AllArgsConstructor;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -21,6 +23,7 @@ import java.util.Random;
 public class AccountsServiceImpl implements IAccountsService {
 
     private AccountsRepository accountsRepository;
+    private EventGateway eventGateway;
 
 
     /**
@@ -65,7 +68,6 @@ public class AccountsServiceImpl implements IAccountsService {
         return true;
     }
 
-
     /**
      * @param accountNumber - Input Account Number
      * @return boolean indicating if the delete of Account details is successful or not
@@ -76,6 +78,10 @@ public class AccountsServiceImpl implements IAccountsService {
                 () -> new ResourceNotFoundException("Account", "accountNumber", accountNumber.toString())
         );
         account.setActiveSw(AccountsConstants.IN_ACTIVE_SW);
+        AccountDataChangedEvent accountDataChangedEvent = new AccountDataChangedEvent();
+        accountDataChangedEvent.setMobileNumber(account.getMobileNumber());
+        accountDataChangedEvent.setAccountNumber(null);
+        eventGateway.publish(accountDataChangedEvent);
         accountsRepository.save(account);
         return true;
     }

@@ -6,6 +6,7 @@ import com.madhurtoppo.accounts.command.UpdateAccountCommand;
 import com.madhurtoppo.accounts.command.event.AccountCreatedEvent;
 import com.madhurtoppo.accounts.command.event.AccountDeletedEvent;
 import com.madhurtoppo.accounts.command.event.AccountUpdatedEvent;
+import com.madhurtoppo.common.event.AccountDataChangedEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
@@ -34,7 +35,10 @@ public class AccountsAggregate {
     public AccountsAggregate(CreateAccountCommand createCommand) {
         AccountCreatedEvent accountCreatedEvent = new AccountCreatedEvent();
         BeanUtils.copyProperties(createCommand, accountCreatedEvent);
-        AggregateLifecycle.apply(accountCreatedEvent);
+        AccountDataChangedEvent accountDataChangedEvent = new AccountDataChangedEvent();
+        BeanUtils.copyProperties(createCommand, accountDataChangedEvent);
+        AggregateLifecycle.apply(accountCreatedEvent)
+                .andThen(() -> AggregateLifecycle.apply(accountDataChangedEvent));
     }
 
 
@@ -52,7 +56,10 @@ public class AccountsAggregate {
     public void handle(UpdateAccountCommand updateCommand) {
         AccountUpdatedEvent accountUpdatedEvent = new AccountUpdatedEvent();
         BeanUtils.copyProperties(updateCommand, accountUpdatedEvent);
+        AccountDataChangedEvent accountDataChangedEvent = new AccountDataChangedEvent();
+        BeanUtils.copyProperties(updateCommand, accountDataChangedEvent);
         AggregateLifecycle.apply(accountUpdatedEvent);
+        AggregateLifecycle.apply(accountDataChangedEvent);
     }
 
 
