@@ -80,7 +80,7 @@ public class AccountsServiceImpl implements IAccountsService {
         account.setActiveSw(AccountsConstants.IN_ACTIVE_SW);
         AccountDataChangedEvent accountDataChangedEvent = new AccountDataChangedEvent();
         accountDataChangedEvent.setMobileNumber(account.getMobileNumber());
-        accountDataChangedEvent.setAccountNumber(null);
+        accountDataChangedEvent.setAccountNumber(0L);
         eventGateway.publish(accountDataChangedEvent);
         accountsRepository.save(account);
         return true;

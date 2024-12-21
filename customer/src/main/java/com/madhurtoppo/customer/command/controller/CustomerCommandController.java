@@ -74,7 +74,7 @@ public class CustomerCommandController {
         commandGateway.sendAndWait(deleteCustomerCommand);
         return ResponseEntity
                 .status(org.springframework.http.HttpStatus.OK)
-                .body(new ResponseDto(CustomerConstants.STATUS_200, CustomerConstants.STATUS_200));
+                .body(new ResponseDto(CustomerConstants.STATUS_200, CustomerConstants.MESSAGE_200));
     }
 
 }

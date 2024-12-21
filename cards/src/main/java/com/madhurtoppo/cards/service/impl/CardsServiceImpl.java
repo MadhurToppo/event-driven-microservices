@@ -81,7 +81,7 @@ public class CardsServiceImpl implements ICardsService {
         cardsRepository.save(card);
         CardDataChangeEvent cardDataChangeEvent = new CardDataChangeEvent();
         cardDataChangeEvent.setMobileNumber(card.getMobileNumber());
-        cardDataChangeEvent.setCardNumber(card.getCardNumber());
+        cardDataChangeEvent.setCardNumber(0L);
         eventGateway.publish(0L);
         return true;
     }
