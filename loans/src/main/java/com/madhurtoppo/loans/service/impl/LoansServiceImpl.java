@@ -1,5 +1,6 @@
 package com.madhurtoppo.loans.service.impl;
 
+import com.madhurtoppo.common.event.LoanDataChangeEvent;
 import com.madhurtoppo.loans.command.event.LoanUpdatedEvent;
 import com.madhurtoppo.loans.constants.LoansConstants;
 import com.madhurtoppo.loans.dto.LoansDto;
@@ -10,6 +11,7 @@ import com.madhurtoppo.loans.mapper.LoansMapper;
 import com.madhurtoppo.loans.repository.LoansRepository;
 import com.madhurtoppo.loans.service.ILoansService;
 import lombok.AllArgsConstructor;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -21,6 +23,7 @@ import java.util.Random;
 public class LoansServiceImpl implements ILoansService {
 
     private LoansRepository loansRepository;
+    private EventGateway eventGateway;
 
 
     /**
@@ -76,6 +79,10 @@ public class LoansServiceImpl implements ILoansService {
                 );
         loan.setActiveSw(LoansConstants.IN_ACTIVE_SW);
         loansRepository.save(loan);
+        LoanDataChangeEvent loanDataChangeEvent = new LoanDataChangeEvent();
+        loanDataChangeEvent.setMobileNumber(loan.getMobileNumber());
+        loanDataChangeEvent.setLoanNumber(0L);
+        eventGateway.publish(loanDataChangeEvent);
         return true;
     }
 
