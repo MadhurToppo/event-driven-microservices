@@ -1,0 +1,10 @@
+com/madhurtoppo/gatewayserver/dto/CardsDto.class
+com/madhurtoppo/gatewayserver/router/CustomerCompositeRouter.class
+com/madhurtoppo/gatewayserver/dto/CustomerDto.class
+com/madhurtoppo/gatewayserver/service/client/CustomerSummaryClient.class
+com/madhurtoppo/gatewayserver/dto/LoansDto.class
+com/madhurtoppo/gatewayserver/dto/AccountsDto.class
+com/madhurtoppo/gatewayserver/handler/CustomerCompositeHandler.class
+com/madhurtoppo/gatewayserver/GatewayserverApplication.class
+com/madhurtoppo/gatewayserver/dto/CustomerSummaryDto.class
+com/madhurtoppo/gatewayserver/config/ClientConfig.class
