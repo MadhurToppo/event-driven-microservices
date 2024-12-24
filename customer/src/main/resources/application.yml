@@ -1,5 +1,6 @@
 server:
   port: 8080
+
 spring:
   application:
     name: "customer"
@@ -16,6 +17,17 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    connection-timeout: 10s
+  cloud:
+    stream:
+      bindings:
+        updateAccountMobileNumber-out-0:
+          destination: update-account-mobile-number
 
 eureka:
   instance:
