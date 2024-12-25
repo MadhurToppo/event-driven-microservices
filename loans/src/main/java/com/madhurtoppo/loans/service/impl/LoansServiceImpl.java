@@ -1,5 +1,6 @@
 package com.madhurtoppo.loans.service.impl;
 
+import com.madhurtoppo.common.dto.MobileNumberUpdateDto;
 import com.madhurtoppo.loans.constants.LoansConstants;
 import com.madhurtoppo.loans.dto.LoansDto;
 import com.madhurtoppo.loans.entity.Loans;
@@ -9,16 +10,22 @@ import com.madhurtoppo.loans.mapper.LoansMapper;
 import com.madhurtoppo.loans.repository.LoansRepository;
 import com.madhurtoppo.loans.service.ILoansService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.Random;
 
+
 @Service
 @AllArgsConstructor
+@Slf4j
 public class LoansServiceImpl implements ILoansService {
 
-    private LoansRepository loansRepository;
+    private final LoansRepository loansRepository;
+    private final StreamBridge streamBridge;
+
 
     /**
      * @param mobileNumber - Mobile Number of the Customer
@@ -32,6 +39,7 @@ public class LoansServiceImpl implements ILoansService {
         }
         loansRepository.save(createNewLoan(mobileNumber));
     }
+
 
     /**
      * @param mobileNumber - Mobile Number of the Customer
@@ -50,6 +58,7 @@ public class LoansServiceImpl implements ILoansService {
         return newLoan;
     }
 
+
     /**
      * @param mobileNumber - Input mobile Number
      * @return Loan Details based on a given mobileNumber
@@ -61,6 +70,7 @@ public class LoansServiceImpl implements ILoansService {
                 );
         return LoansMapper.mapToLoansDto(loan, new LoansDto());
     }
+
 
     /**
      * @param loansDto - LoansDto Object
@@ -76,6 +86,7 @@ public class LoansServiceImpl implements ILoansService {
         return true;
     }
 
+
     /**
      * @param loanNumber - Input Loan Number
      * @return boolean indicating if the delete of loan details is successful or not
@@ -88,6 +99,26 @@ public class LoansServiceImpl implements ILoansService {
         loan.setActiveSw(LoansConstants.IN_ACTIVE_SW);
         loansRepository.save(loan);
         return true;
+    }
+
+
+    @Override
+    public boolean updateMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        String currentMobileNumber = mobileNumberUpdateDto.getCurrentMobileNumber();
+        Loans loan = loansRepository.findByMobileNumberAndActiveSw(currentMobileNumber, LoansConstants.ACTIVE_SW).orElseThrow(
+                () -> new ResourceNotFoundException("Loan", "mobileNumber", currentMobileNumber)
+        );
+        loan.setMobileNumber(mobileNumberUpdateDto.getNewMobileNumber());
+        loansRepository.save(loan);
+        updateMobileNumberStatus(mobileNumberUpdateDto);
+        return true;
+    }
+
+
+    private void updateMobileNumberStatus(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        log.info("Sending message to updateMobileNumberStatus {}", mobileNumberUpdateDto);
+        var result = streamBridge.send("updateMobileNumberStatus-out-0", mobileNumberUpdateDto);
+        log.info("Message sent to updateMobileNumberStatus {}", result);
     }
 
 

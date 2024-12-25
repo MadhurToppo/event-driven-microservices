@@ -1,6 +1,8 @@
 package com.madhurtoppo.cards.service;
 
 import com.madhurtoppo.cards.dto.CardsDto;
+import com.madhurtoppo.common.dto.MobileNumberUpdateDto;
+
 
 public interface ICardsService {
 
@@ -30,5 +32,12 @@ public interface ICardsService {
      * @return boolean indicating if the delete of card details is successful or not
      */
     boolean deleteCard(Long cardNumber);
+
+    /**
+     * This method is used to update the mobile number of the customer.
+     * @param mobileNumberUpdateDto - MobileNumberUpdateDto Object
+     * @return boolean indicating if the update of mobileNumber is successful or not
+     */
+    boolean updateMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto);
 
 }

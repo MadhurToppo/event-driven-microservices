@@ -31,6 +31,8 @@ spring:
         updateAccountMobileNumber-in-0:
           destination: update-account-mobile-number
           group: ${spring.application.name}
+        updateCardMobileNumber-out-0:
+          destination: update-card-mobile-number
 
 eureka:
   instance:

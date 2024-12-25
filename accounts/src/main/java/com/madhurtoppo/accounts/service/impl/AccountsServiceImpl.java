@@ -8,30 +8,38 @@ import com.madhurtoppo.accounts.exception.ResourceNotFoundException;
 import com.madhurtoppo.accounts.mapper.AccountsMapper;
 import com.madhurtoppo.accounts.repository.AccountsRepository;
 import com.madhurtoppo.accounts.service.IAccountsService;
+import com.madhurtoppo.common.dto.MobileNumberUpdateDto;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.Random;
 
+
 @Service
 @AllArgsConstructor
-public class AccountsServiceImpl  implements IAccountsService {
+@Slf4j
+public class AccountsServiceImpl implements IAccountsService {
 
-    private AccountsRepository accountsRepository;
+    private final AccountsRepository accountsRepository;
+    private final StreamBridge streamBridge;
+
 
     /**
      * @param mobileNumber - String
      */
     @Override
     public void createAccount(String mobileNumber) {
-        Optional<Accounts> optionalAccounts= accountsRepository.findByMobileNumberAndActiveSw(mobileNumber,
+        Optional<Accounts> optionalAccounts = accountsRepository.findByMobileNumberAndActiveSw(mobileNumber,
                 AccountsConstants.ACTIVE_SW);
-        if(optionalAccounts.isPresent()){
-            throw new AccountAlreadyExistsException("Account already registered with given mobileNumber "+mobileNumber);
+        if (optionalAccounts.isPresent()) {
+            throw new AccountAlreadyExistsException("Account already registered with given mobileNumber " + mobileNumber);
         }
         accountsRepository.save(createNewAccount(mobileNumber));
     }
+
 
     /**
      * @param mobileNumber - String
@@ -48,6 +56,7 @@ public class AccountsServiceImpl  implements IAccountsService {
         return newAccount;
     }
 
+
     /**
      * @param mobileNumber - Input Mobile Number
      * @return Accounts Details based on a given mobileNumber
@@ -56,10 +65,11 @@ public class AccountsServiceImpl  implements IAccountsService {
     public AccountsDto fetchAccount(String mobileNumber) {
         Accounts account = accountsRepository.findByMobileNumberAndActiveSw(mobileNumber, AccountsConstants.ACTIVE_SW)
                 .orElseThrow(() -> new ResourceNotFoundException("Account", "mobileNumber", mobileNumber)
-        );
+                );
         AccountsDto accountsDto = AccountsMapper.mapToAccountsDto(account, new AccountsDto());
         return accountsDto;
     }
+
 
     /**
      * @param accountsDto - AccountsDto Object
@@ -72,8 +82,9 @@ public class AccountsServiceImpl  implements IAccountsService {
                 accountsDto.getMobileNumber()));
         AccountsMapper.mapToAccounts(accountsDto, account);
         accountsRepository.save(account);
-        return  true;
+        return true;
     }
+
 
     /**
      * @param accountNumber - Input Account Number
@@ -87,6 +98,26 @@ public class AccountsServiceImpl  implements IAccountsService {
         account.setActiveSw(AccountsConstants.IN_ACTIVE_SW);
         accountsRepository.save(account);
         return true;
+    }
+
+
+    @Override
+    public boolean updateMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        String currentMobileNumber = mobileNumberUpdateDto.getCurrentMobileNumber();
+        Accounts accounts = accountsRepository.findByMobileNumberAndActiveSw(currentMobileNumber, true).orElseThrow(
+                () -> new ResourceNotFoundException("Customer", "mobileNumber", currentMobileNumber)
+        );
+        accounts.setMobileNumber(mobileNumberUpdateDto.getNewMobileNumber());
+        accountsRepository.save(accounts);
+        updateCardMobileNumber(mobileNumberUpdateDto);
+        return true;
+    }
+
+
+    private void updateCardMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        log.info("Sending message to updateCardMobileNumber {}", mobileNumberUpdateDto);
+        var result = streamBridge.send("updateCardMobileNumber-out-0", mobileNumberUpdateDto);
+        log.info("Message sent to updateCardMobileNumber {}", result);
     }
 
 

@@ -23,6 +23,16 @@ spring:
     username: guest
     password: guest
     connection-timeout: 10s
+  cloud:
+    function:
+      definition: updateCardMobileNumber
+    stream:
+      bindings:
+        updateCardMobileNumber-in-0:
+          destination: update-card-mobile-number
+          group: ${spring.application.name}
+        updateLoanMobileNumber-out-0:
+          destination: update-loan-mobile-number
 
 eureka:
   instance:

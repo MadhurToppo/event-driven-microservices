@@ -8,7 +8,10 @@ import com.madhurtoppo.cards.exception.ResourceNotFoundException;
 import com.madhurtoppo.cards.mapper.CardsMapper;
 import com.madhurtoppo.cards.repository.CardsRepository;
 import com.madhurtoppo.cards.service.ICardsService;
+import com.madhurtoppo.common.dto.MobileNumberUpdateDto;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -16,9 +19,11 @@ import java.util.Random;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class CardsServiceImpl implements ICardsService {
 
-    private CardsRepository cardsRepository;
+    private final CardsRepository cardsRepository;
+    private final StreamBridge streamBridge;
 
     /**
      * @param mobileNumber - Mobile Number of the Customer
@@ -88,6 +93,24 @@ public class CardsServiceImpl implements ICardsService {
         card.setActiveSw(CardsConstants.IN_ACTIVE_SW);
         cardsRepository.save(card);
         return true;
+    }
+
+
+    @Override
+    public boolean updateMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        String currentMobileNumber = mobileNumberUpdateDto.getCurrentMobileNumber();
+        Cards card = cardsRepository.findByMobileNumberAndActiveSw(currentMobileNumber,
+                CardsConstants.ACTIVE_SW).orElseThrow(() -> new ResourceNotFoundException("Card", "mobileNumber",
+                currentMobileNumber));
+        card.setMobileNumber(mobileNumberUpdateDto.getNewMobileNumber());
+        cardsRepository.save(card);
+        return true;
+    }
+
+    private void updateLoanMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        log.info("Sending message to updateLoanMobileNumber {}", mobileNumberUpdateDto);
+        var result = streamBridge.send("updateLoanMobileNumber-out-0", mobileNumberUpdateDto);
+        log.info("Message sent to updateLoanMobileNumber {}", result);
     }
 
 

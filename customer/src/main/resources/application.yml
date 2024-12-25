@@ -24,10 +24,15 @@ spring:
     password: guest
     connection-timeout: 10s
   cloud:
+    function:
+      definition: updateMobileNumberStatus
     stream:
       bindings:
         updateAccountMobileNumber-out-0:
           destination: update-account-mobile-number
+        updateMobileNumberStatus-in-0:
+          destination: update-mobile-number-status
+          group: ${spring.application.name}
 
 eureka:
   instance:

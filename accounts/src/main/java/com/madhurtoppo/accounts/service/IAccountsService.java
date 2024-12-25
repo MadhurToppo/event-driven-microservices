@@ -1,6 +1,8 @@
 package com.madhurtoppo.accounts.service;
 
 import com.madhurtoppo.accounts.dto.AccountsDto;
+import com.madhurtoppo.common.dto.MobileNumberUpdateDto;
+
 
 public interface IAccountsService {
 
@@ -31,5 +33,12 @@ public interface IAccountsService {
      */
     boolean deleteAccount(Long accountNumber);
 
+
+    /**
+     * This method is used to update the mobile number of the customer.
+     * @param mobileNumberUpdateDto - MobileNumberUpdateDto Object
+     * @return boolean indicating if the update of mobileNumber is successful or not
+     */
+    boolean updateMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto);
 
 }
