@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 public class CustomerFunctions {
 
     @Bean
-    public Consumer<MobileNumberUpdateDto> updateLoanMobileNumber() {
+    public Consumer<MobileNumberUpdateDto> updateMobileNumberStatus() {
         return mobileNumberUpdateDto -> {
             log.info("Received message to updateMobileNumber {}", mobileNumberUpdateDto);
         };

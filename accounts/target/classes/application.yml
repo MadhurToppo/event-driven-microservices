@@ -1,10 +1,11 @@
 server:
   port: 8081
+
 spring:
   application:
     name: "accounts"
   datasource:
-    url: jdbc:h2:file:~/workspace/event-driven-microservices/accounts;AUTO_SERVER=true
+    url: jdbc:h2:file:~/accounts;AUTO_SERVER=true
     driverClassName: org.h2.Driver
     username: sa
     password: ''
@@ -16,6 +17,22 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    connection-timeout: 10s
+  cloud:
+    function:
+      definition: updateAccountMobileNumber
+    stream:
+      bindings:
+        updateAccountMobileNumber-in-0:
+          destination: update-account-mobile-number
+          group: ${spring.application.name}
+        updateCardMobileNumber-out-0:
+          destination: update-card-mobile-number
 
 eureka:
   instance:
@@ -44,11 +61,3 @@ info:
 logging:
   pattern:
     console: "%green(%d{HH:mm:ss.SSS}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %msg%n"
-
-axon:
-  eventhandling:
-    processors:
-      card-group:
-        mode: subscribing
-  axonserver:
-    servers: localhost:8124

@@ -104,6 +104,7 @@ public class CardsServiceImpl implements ICardsService {
                 currentMobileNumber));
         card.setMobileNumber(mobileNumberUpdateDto.getNewMobileNumber());
         cardsRepository.save(card);
+        updateLoanMobileNumber(mobileNumberUpdateDto);
         return true;
     }
 
