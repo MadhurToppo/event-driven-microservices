@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.madhurtoppo.cards.CardsApplicationTests
--------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.991 s -- in com.madhurtoppo.cards.CardsApplicationTests
