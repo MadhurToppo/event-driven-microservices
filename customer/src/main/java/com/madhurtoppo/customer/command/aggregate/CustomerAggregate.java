@@ -2,7 +2,6 @@ package com.madhurtoppo.customer.command.aggregate;
 
 import com.madhurtoppo.common.command.RollbackCustomerMobileCommand;
 import com.madhurtoppo.common.command.UpdateCustomerMobileCommand;
-import com.madhurtoppo.common.event.CustomerDataChangedEvent;
 import com.madhurtoppo.common.event.CustomerMobileRollbackedEvent;
 import com.madhurtoppo.common.event.CustomerMobileUpdatedEvent;
 import com.madhurtoppo.customer.command.CreateCustomerCommand;
@@ -39,10 +38,7 @@ public class CustomerAggregate {
     public CustomerAggregate(CreateCustomerCommand createCustomerCommand) {
         CustomerCreatedEvent customerCreatedEvent = new CustomerCreatedEvent();
         BeanUtils.copyProperties(createCustomerCommand, customerCreatedEvent);
-        CustomerDataChangedEvent customerDataChangedEvent = new CustomerDataChangedEvent();
-        BeanUtils.copyProperties(createCustomerCommand, customerDataChangedEvent);
-        AggregateLifecycle.apply(customerCreatedEvent)
-                .andThen(() -> AggregateLifecycle.apply(customerDataChangedEvent));
+        AggregateLifecycle.apply(customerCreatedEvent);
     }
 
 
@@ -60,10 +56,7 @@ public class CustomerAggregate {
     public void handle(UpdateCustomerCommand updateCustomerCommand) {
         CustomerUpdatedEvent customerUpdatedEvent = new CustomerUpdatedEvent();
         BeanUtils.copyProperties(updateCustomerCommand, customerUpdatedEvent);
-        CustomerDataChangedEvent customerDataChangedEvent = new CustomerDataChangedEvent();
-        BeanUtils.copyProperties(updateCustomerCommand, customerDataChangedEvent);
         AggregateLifecycle.apply(customerUpdatedEvent);
-        AggregateLifecycle.apply(customerDataChangedEvent);
     }
 
 

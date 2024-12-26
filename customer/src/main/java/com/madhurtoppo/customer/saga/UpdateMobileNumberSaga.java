@@ -36,11 +36,6 @@ public class UpdateMobileNumberSaga {
     private transient CommandGateway commandGateway;
 
 
-    public UpdateMobileNumberSaga(CommandGateway commandGateway) {
-        this.commandGateway = commandGateway;
-    }
-
-
     @StartSaga
     @SagaEventHandler(associationProperty = "customerId")
     public void handle(CustomerMobileUpdatedEvent customerMobileUpdatedEvent) {

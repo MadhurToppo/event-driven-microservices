@@ -1,6 +1,5 @@
 package com.madhurtoppo.customer.service.impl;
 
-import com.madhurtoppo.common.event.CustomerDataChangedEvent;
 import com.madhurtoppo.customer.command.event.CustomerUpdatedEvent;
 import com.madhurtoppo.customer.constants.CustomerConstants;
 import com.madhurtoppo.customer.dto.CustomerDto;
@@ -63,10 +62,6 @@ public class CustomerServiceImpl implements ICustomerService {
         );
         customer.setActiveSw(CustomerConstants.IN_ACTIVE_SW);
         customerRepository.save(customer);
-        CustomerDataChangedEvent customerDataChangedEvent = new CustomerDataChangedEvent();
-        customerDataChangedEvent.setMobileNumber(customer.getMobileNumber());
-        customerDataChangedEvent.setActiveSw(CustomerConstants.IN_ACTIVE_SW);
-        eventGateway.publish(customerDataChangedEvent);
         return true;
     }
 

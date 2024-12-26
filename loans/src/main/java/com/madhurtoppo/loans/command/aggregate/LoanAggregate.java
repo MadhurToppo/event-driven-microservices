@@ -1,7 +1,6 @@
 package com.madhurtoppo.loans.command.aggregate;
 
 import com.madhurtoppo.common.command.UpdateLoanMobileCommand;
-import com.madhurtoppo.common.event.LoanDataChangeEvent;
 import com.madhurtoppo.common.event.LoanMobileUpdatedEvent;
 import com.madhurtoppo.loans.command.CreateLoanCommand;
 import com.madhurtoppo.loans.command.DeleteLoanCommand;
@@ -43,10 +42,7 @@ public class LoanAggregate {
     public LoanAggregate(CreateLoanCommand createCommand) {
         LoanCreatedEvent loanCreatedEvent = new LoanCreatedEvent();
         BeanUtils.copyProperties(createCommand, loanCreatedEvent);
-        LoanDataChangeEvent loanDataChangeEvent = new LoanDataChangeEvent();
-        BeanUtils.copyProperties(createCommand, loanDataChangeEvent);
-        AggregateLifecycle.apply(loanCreatedEvent)
-                .andThen(() -> AggregateLifecycle.apply(loanDataChangeEvent));
+        AggregateLifecycle.apply(loanCreatedEvent);
     }
 
 
@@ -67,10 +63,7 @@ public class LoanAggregate {
     public void handle(UpdateLoanCommand updateCommand) {
         LoanUpdatedEvent loanUpdatedEvent = new LoanUpdatedEvent();
         BeanUtils.copyProperties(updateCommand, loanUpdatedEvent);
-        LoanDataChangeEvent loanDataChangeEvent = new LoanDataChangeEvent();
-        BeanUtils.copyProperties(updateCommand, loanDataChangeEvent);
         AggregateLifecycle.apply(loanUpdatedEvent);
-        AggregateLifecycle.apply(loanDataChangeEvent);
     }
 
 

@@ -8,10 +8,8 @@ import com.madhurtoppo.cards.command.event.CardDeletedEvent;
 import com.madhurtoppo.cards.command.event.CardUpdatedEvent;
 import com.madhurtoppo.common.command.RollbackCardMobileCommand;
 import com.madhurtoppo.common.command.UpdateCardMobileCommand;
-import com.madhurtoppo.common.event.CardDataChangeEvent;
 import com.madhurtoppo.common.event.CardMobileRollbackedEvent;
 import com.madhurtoppo.common.event.CardMobileUpdatedEvent;
-import com.madhurtoppo.common.event.CustomerMobileUpdatedEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
@@ -42,10 +40,7 @@ public class CardAggregate {
     public CardAggregate(CreateCardCommand createCommand) {
         CardCreatedEvent cardCreatedEvent = new CardCreatedEvent();
         BeanUtils.copyProperties(createCommand, cardCreatedEvent);
-        CardDataChangeEvent cardDataChangeEvent = new CardDataChangeEvent();
-        BeanUtils.copyProperties(createCommand, cardDataChangeEvent);
-        AggregateLifecycle.apply(cardCreatedEvent)
-                .andThen(() -> AggregateLifecycle.apply(cardDataChangeEvent));
+        AggregateLifecycle.apply(cardCreatedEvent);
     }
 
 
@@ -65,10 +60,7 @@ public class CardAggregate {
     public void handle(UpdateCardCommand updateCommand) {
         CardUpdatedEvent cardUpdatedEvent = new CardUpdatedEvent();
         BeanUtils.copyProperties(updateCommand, cardUpdatedEvent);
-        CardDataChangeEvent cardDataChangeEvent = new CardDataChangeEvent();
-        BeanUtils.copyProperties(updateCommand, cardDataChangeEvent);
         AggregateLifecycle.apply(cardUpdatedEvent);
-        AggregateLifecycle.apply(cardDataChangeEvent);
     }
 
 

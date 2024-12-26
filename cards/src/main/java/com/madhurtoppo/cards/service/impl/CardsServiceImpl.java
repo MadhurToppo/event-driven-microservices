@@ -9,13 +9,11 @@ import com.madhurtoppo.cards.exception.ResourceNotFoundException;
 import com.madhurtoppo.cards.mapper.CardsMapper;
 import com.madhurtoppo.cards.repository.CardsRepository;
 import com.madhurtoppo.cards.service.ICardsService;
-import com.madhurtoppo.common.event.CardDataChangeEvent;
 import lombok.AllArgsConstructor;
 import org.axonframework.eventhandling.gateway.EventGateway;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.Random;
 
 
 @Service
@@ -79,10 +77,6 @@ public class CardsServiceImpl implements ICardsService {
                 .orElseThrow(() -> new ResourceNotFoundException("Card", "cardNumber", cardNumber.toString()));
         card.setActiveSw(CardsConstants.IN_ACTIVE_SW);
         cardsRepository.save(card);
-        CardDataChangeEvent cardDataChangeEvent = new CardDataChangeEvent();
-        cardDataChangeEvent.setMobileNumber(card.getMobileNumber());
-        cardDataChangeEvent.setCardNumber(0L);
-        eventGateway.publish(0L);
         return true;
     }
 
