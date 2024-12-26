@@ -139,4 +139,16 @@ public class AccountsServiceImpl implements IAccountsService {
     }
 
 
+    @Override
+    public boolean rollbackMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        String newMobileNumber = mobileNumberUpdateDto.getNewMobileNumber();
+        Accounts accounts = accountsRepository.findByMobileNumberAndActiveSw(newMobileNumber, true).orElseThrow(
+                () -> new ResourceNotFoundException("Customer", "mobileNumber", newMobileNumber)
+        );
+        accounts.setMobileNumber(mobileNumberUpdateDto.getCurrentMobileNumber());
+        accountsRepository.save(accounts);
+        rollbackCustomerMobileNumber(mobileNumberUpdateDto);
+        return true;
+    }
+
 }

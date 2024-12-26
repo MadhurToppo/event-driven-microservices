@@ -14,9 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.Optional;
 import java.util.Random;
+
 
 @Service
 @AllArgsConstructor
@@ -25,6 +27,7 @@ public class CardsServiceImpl implements ICardsService {
 
     private final CardsRepository cardsRepository;
     private final StreamBridge streamBridge;
+
 
     /**
      * @param mobileNumber - Mobile Number of the Customer
@@ -38,6 +41,7 @@ public class CardsServiceImpl implements ICardsService {
         }
         cardsRepository.save(createNewCard(mobileNumber));
     }
+
 
     /**
      * @param mobileNumber - Mobile Number of the Customer
@@ -56,6 +60,7 @@ public class CardsServiceImpl implements ICardsService {
         return newCard;
     }
 
+
     /**
      * @param mobileNumber - Input mobile Number
      * @return Card Details based on a given mobileNumber
@@ -67,6 +72,7 @@ public class CardsServiceImpl implements ICardsService {
                 );
         return CardsMapper.mapToCardsDto(card, new CardsDto());
     }
+
 
     /**
      * @param cardsDto - CardsDto Object
@@ -81,6 +87,7 @@ public class CardsServiceImpl implements ICardsService {
         cardsRepository.save(card);
         return true;
     }
+
 
     /**
      * @param cardNumber - Input Card Number
@@ -98,21 +105,51 @@ public class CardsServiceImpl implements ICardsService {
 
 
     @Override
+    @Transactional
     public boolean updateMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
-        String currentMobileNumber = mobileNumberUpdateDto.getCurrentMobileNumber();
-        Cards card = cardsRepository.findByMobileNumberAndActiveSw(currentMobileNumber,
-                CardsConstants.ACTIVE_SW).orElseThrow(() -> new ResourceNotFoundException("Card", "mobileNumber",
-                currentMobileNumber));
-        card.setMobileNumber(mobileNumberUpdateDto.getNewMobileNumber());
-        cardsRepository.save(card);
-        updateLoanMobileNumber(mobileNumberUpdateDto);
-        return true;
+        boolean result = false;
+        try {
+            String currentMobileNumber = mobileNumberUpdateDto.getCurrentMobileNumber();
+            Cards card = cardsRepository.findByMobileNumberAndActiveSw(currentMobileNumber,
+                    CardsConstants.ACTIVE_SW).orElseThrow(() -> new ResourceNotFoundException("Card", "mobileNumber",
+                    currentMobileNumber));
+            card.setMobileNumber(mobileNumberUpdateDto.getNewMobileNumber());
+            cardsRepository.save(card);
+            updateLoanMobileNumber(mobileNumberUpdateDto);
+            result = true;
+        } catch (Exception exception) {
+            log.error("Exception in updateMobileNumber {}", exception.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            rollbackAccountMobileNumber(mobileNumberUpdateDto);
+        }
+        return result;
     }
+
 
     private void updateLoanMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
         log.info("Sending message to updateLoanMobileNumber {}", mobileNumberUpdateDto);
         var result = streamBridge.send("updateLoanMobileNumber-out-0", mobileNumberUpdateDto);
         log.info("Is the updateLoanMobileNumber successfully sent {}", result);
+    }
+
+
+    @Override
+    public boolean rollbackMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        String newMobileNumber = mobileNumberUpdateDto.getNewMobileNumber();
+        Cards accounts = cardsRepository.findByMobileNumberAndActiveSw(newMobileNumber, true).orElseThrow(
+                () -> new ResourceNotFoundException("Customer", "mobileNumber", newMobileNumber)
+        );
+        accounts.setMobileNumber(mobileNumberUpdateDto.getCurrentMobileNumber());
+        cardsRepository.save(accounts);
+        rollbackAccountMobileNumber(mobileNumberUpdateDto);
+        return true;
+    }
+
+
+    private void rollbackAccountMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        log.info("Sending message to rollbackAccountMobileNumber {}", mobileNumberUpdateDto);
+        var result = streamBridge.send("rollbackAccountMobileNumber-out-0", mobileNumberUpdateDto);
+        log.info("Is the rollbackAccountMobileNumber request successfully sent {}", result);
     }
 
 

@@ -14,10 +14,18 @@ import java.util.function.Consumer;
 public class CardFunctions {
 
     @Bean
-    public Consumer<MobileNumberUpdateDto> updateCardMobileNumber(ICardsService iAccountsService) {
+    public Consumer<MobileNumberUpdateDto> updateCardMobileNumber(ICardsService iCardsService) {
         return mobileNumberUpdateDto -> {
             log.info("Sending message to updateCardMobileNumber {}", mobileNumberUpdateDto);
-            iAccountsService.updateMobileNumber(mobileNumberUpdateDto);
+            iCardsService.updateMobileNumber(mobileNumberUpdateDto);
+        };
+    }
+
+    @Bean
+    public Consumer<MobileNumberUpdateDto> rollbackCardMobileNumber(ICardsService iCardsService) {
+        return mobileNumberUpdateDto -> {
+            log.info("Sending message to rollbackCardMobileNumber {}", mobileNumberUpdateDto);
+            iCardsService.rollbackMobileNumber(mobileNumberUpdateDto);
         };
     }
 

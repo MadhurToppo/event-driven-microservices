@@ -13,6 +13,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.Optional;
 import java.util.Random;
@@ -103,15 +105,25 @@ public class LoansServiceImpl implements ILoansService {
 
 
     @Override
+    @Transactional
     public boolean updateMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
-        String currentMobileNumber = mobileNumberUpdateDto.getCurrentMobileNumber();
-        Loans loan = loansRepository.findByMobileNumberAndActiveSw(currentMobileNumber, LoansConstants.ACTIVE_SW).orElseThrow(
-                () -> new ResourceNotFoundException("Loan", "mobileNumber", currentMobileNumber)
-        );
-        loan.setMobileNumber(mobileNumberUpdateDto.getNewMobileNumber());
-        loansRepository.save(loan);
-        updateMobileNumberStatus(mobileNumberUpdateDto);
-        return true;
+        boolean result = false;
+        try {
+            String currentMobileNumber = mobileNumberUpdateDto.getCurrentMobileNumber();
+            Loans loan = loansRepository.findByMobileNumberAndActiveSw(currentMobileNumber, LoansConstants.ACTIVE_SW).orElseThrow(
+                    () -> new ResourceNotFoundException("Loan", "mobileNumber", currentMobileNumber)
+            );
+            loan.setMobileNumber(mobileNumberUpdateDto.getNewMobileNumber());
+            loansRepository.save(loan);
+//            throw new RuntimeException("Exception in updateMobileNumber");
+            updateMobileNumberStatus(mobileNumberUpdateDto);
+            result = true;
+        } catch (Exception exception) {
+            log.error("Exception in updateMobileNumber {}", exception.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            rollbackCardMobileNumber(mobileNumberUpdateDto);
+        }
+        return result;
     }
 
 
@@ -121,5 +133,11 @@ public class LoansServiceImpl implements ILoansService {
         log.info("Message sent to updateMobileNumberStatus {}", result);
     }
 
+
+    private void rollbackCardMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        log.info("Sending message to rollbackCardMobileNumber {}", mobileNumberUpdateDto);
+        var result = streamBridge.send("rollbackCardMobileNumber-out-0", mobileNumberUpdateDto);
+        log.info("Is the rollbackCardMobileNumber request successfully sent {}", result);
+    }
 
 }
