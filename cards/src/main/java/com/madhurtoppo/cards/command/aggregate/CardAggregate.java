@@ -6,7 +6,12 @@ import com.madhurtoppo.cards.command.UpdateCardCommand;
 import com.madhurtoppo.cards.command.event.CardCreatedEvent;
 import com.madhurtoppo.cards.command.event.CardDeletedEvent;
 import com.madhurtoppo.cards.command.event.CardUpdatedEvent;
+import com.madhurtoppo.common.command.RollbackCardMobileCommand;
+import com.madhurtoppo.common.command.UpdateCardMobileCommand;
 import com.madhurtoppo.common.event.CardDataChangeEvent;
+import com.madhurtoppo.common.event.CardMobileRollbackedEvent;
+import com.madhurtoppo.common.event.CardMobileUpdatedEvent;
+import com.madhurtoppo.common.event.CustomerMobileUpdatedEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
@@ -26,6 +31,7 @@ public class CardAggregate {
     private int amountUsed;
     private int availableAmount;
     private boolean activeSw;
+    private String errorMsg;
 
 
     public CardAggregate() {
@@ -86,6 +92,35 @@ public class CardAggregate {
     @EventSourcingHandler
     public void on(CardDeletedEvent cardDeletedEvent) {
         this.activeSw = cardDeletedEvent.isActiveSw();
+    }
+
+
+    @CommandHandler
+    public void handle(UpdateCardMobileCommand updateCardMobileCommand) {
+        CardMobileUpdatedEvent cardMobileUpdatedEvent = new CardMobileUpdatedEvent();
+        BeanUtils.copyProperties(updateCardMobileCommand, cardMobileUpdatedEvent);
+        AggregateLifecycle.apply(cardMobileUpdatedEvent);
+    }
+
+
+    @EventSourcingHandler
+    public void on(CardMobileUpdatedEvent cardMobileUpdatedEvent) {
+        this.mobileNumber = cardMobileUpdatedEvent.getNewMobileNumber();
+    }
+
+
+    @CommandHandler
+    public void handle(RollbackCardMobileCommand rollbackCardMobileCommand) {
+        CardMobileRollbackedEvent cardMobileRollbackedEvent = new CardMobileRollbackedEvent();
+        BeanUtils.copyProperties(rollbackCardMobileCommand, cardMobileRollbackedEvent);
+        AggregateLifecycle.apply(cardMobileRollbackedEvent);
+    }
+
+
+    @EventSourcingHandler
+    public void on(CardMobileRollbackedEvent cardMobileRollbackedEvent) {
+        this.mobileNumber = cardMobileRollbackedEvent.getMobileNumber();
+        this.errorMsg = cardMobileRollbackedEvent.getErrorMsg();
     }
 
 }

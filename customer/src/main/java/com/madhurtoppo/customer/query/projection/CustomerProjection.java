@@ -1,5 +1,7 @@
 package com.madhurtoppo.customer.query.projection;
 
+import com.madhurtoppo.common.event.CustomerMobileRollbackedEvent;
+import com.madhurtoppo.common.event.CustomerMobileUpdatedEvent;
 import com.madhurtoppo.customer.command.event.CustomerCreatedEvent;
 import com.madhurtoppo.customer.command.event.CustomerDeletedEvent;
 import com.madhurtoppo.customer.command.event.CustomerUpdatedEvent;
@@ -38,6 +40,19 @@ public class CustomerProjection {
     @EventHandler
     public void on(CustomerDeletedEvent customerDeletedEvent) {
         iCustomerService.deleteCustomer(customerDeletedEvent.getCustomerId());
+    }
+
+
+    @EventHandler
+    public void on(CustomerMobileUpdatedEvent customerMobileUpdatedEvent) {
+        iCustomerService.updateMobileNumber(customerMobileUpdatedEvent.getMobileNumber(), customerMobileUpdatedEvent.getNewMobileNumber());
+    }
+
+
+    @EventHandler
+    public void on(CustomerMobileRollbackedEvent customerMobileRollbackedEvent) {
+        iCustomerService.updateMobileNumber(customerMobileRollbackedEvent.getNewMobileNumber(),
+                customerMobileRollbackedEvent.getMobileNumber());
     }
 
 }

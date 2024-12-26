@@ -1,6 +1,8 @@
 package com.madhurtoppo.loans.command.aggregate;
 
+import com.madhurtoppo.common.command.UpdateLoanMobileCommand;
 import com.madhurtoppo.common.event.LoanDataChangeEvent;
+import com.madhurtoppo.common.event.LoanMobileUpdatedEvent;
 import com.madhurtoppo.loans.command.CreateLoanCommand;
 import com.madhurtoppo.loans.command.DeleteLoanCommand;
 import com.madhurtoppo.loans.command.UpdateLoanCommand;
@@ -93,5 +95,20 @@ public class LoanAggregate {
     public void on(LoanDeletedEvent loanDeletedEvent) {
         this.activeSw = loanDeletedEvent.isActiveSw();
     }
+
+
+    @CommandHandler
+    public void handle(UpdateLoanMobileCommand updateLoanMobileCommand) {
+        LoanMobileUpdatedEvent loanMobileUpdatedEvent = new LoanMobileUpdatedEvent();
+        BeanUtils.copyProperties(updateLoanMobileCommand, loanMobileUpdatedEvent);
+        AggregateLifecycle.apply(loanMobileUpdatedEvent);
+    }
+
+
+    @EventSourcingHandler
+    public void on(LoanMobileUpdatedEvent loanMobileUpdatedEvent) {
+        this.mobileNumber = loanMobileUpdatedEvent.getNewMobileNumber();
+    }
+
 
 }

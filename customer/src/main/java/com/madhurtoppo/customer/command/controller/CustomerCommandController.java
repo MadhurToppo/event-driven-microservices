@@ -1,5 +1,7 @@
 package com.madhurtoppo.customer.command.controller;
 
+import com.madhurtoppo.common.command.UpdateCustomerMobileCommand;
+import com.madhurtoppo.common.dto.MobileNumberUpdateDto;
 import com.madhurtoppo.customer.command.CreateCustomerCommand;
 import com.madhurtoppo.customer.command.DeleteCustomerCommand;
 import com.madhurtoppo.customer.command.UpdateCustomerCommand;
@@ -72,6 +74,23 @@ public class CustomerCommandController {
                 .activeSw(CustomerConstants.IN_ACTIVE_SW)
                 .build();
         commandGateway.sendAndWait(deleteCustomerCommand);
+        return ResponseEntity
+                .status(org.springframework.http.HttpStatus.OK)
+                .body(new ResponseDto(CustomerConstants.STATUS_200, CustomerConstants.MESSAGE_200));
+    }
+
+
+    @PatchMapping("/mobileNumber")
+    public ResponseEntity<ResponseDto> updateMobileNumber(@Valid @RequestBody MobileNumberUpdateDto mobileNumberUpdateDto) {
+        UpdateCustomerMobileCommand updateCustomerMobileCommand = UpdateCustomerMobileCommand.builder()
+                .customerId(mobileNumberUpdateDto.getCustomerId())
+                .accountNumber(mobileNumberUpdateDto.getAccountNumber())
+                .loanNumber(mobileNumberUpdateDto.getLoanNumber())
+                .cardNumber(mobileNumberUpdateDto.getCardNumber())
+                .mobileNumber(mobileNumberUpdateDto.getCurrentMobileNumber())
+                .newMobileNumber(mobileNumberUpdateDto.getNewMobileNumber())
+                .build();
+        commandGateway.sendAndWait(updateCustomerMobileCommand);
         return ResponseEntity
                 .status(org.springframework.http.HttpStatus.OK)
                 .body(new ResponseDto(CustomerConstants.STATUS_200, CustomerConstants.MESSAGE_200));

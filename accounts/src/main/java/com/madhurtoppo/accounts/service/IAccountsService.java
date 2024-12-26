@@ -34,4 +34,11 @@ public interface IAccountsService {
     boolean deleteAccount(Long accountNumber);
 
 
+    /**
+     * @param mobileNumber - Input Mobile Number
+     * @param newMobileNumber - Updated Mobile Number
+     * @return boolean indicating if the update of Mobile Number is successful or not
+     */
+    boolean updateMobileNumber(String mobileNumber, String newMobileNumber);
+
 }

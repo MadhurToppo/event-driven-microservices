@@ -5,6 +5,8 @@ import com.madhurtoppo.cards.command.event.CardDeletedEvent;
 import com.madhurtoppo.cards.command.event.CardUpdatedEvent;
 import com.madhurtoppo.cards.entity.Cards;
 import com.madhurtoppo.cards.service.ICardsService;
+import com.madhurtoppo.common.event.CardMobileRollbackedEvent;
+import com.madhurtoppo.common.event.CardMobileUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
@@ -37,6 +39,18 @@ public class CardProjection {
     @EventHandler
     public void on(CardDeletedEvent event) {
         iCardsService.deleteCard(event.getCardNumber());
+    }
+
+
+    @EventHandler
+    public void on(CardMobileUpdatedEvent cardMobileUpdatedEvent) {
+        iCardsService.updateMobileNumber(cardMobileUpdatedEvent.getMobileNumber(), cardMobileUpdatedEvent.getNewMobileNumber());
+    }
+
+
+    @EventHandler
+    public void on(CardMobileRollbackedEvent cardMobileRollbackedEvent) {
+        iCardsService.updateMobileNumber(cardMobileRollbackedEvent.getNewMobileNumber(), cardMobileRollbackedEvent.getMobileNumber());
     }
 
 }

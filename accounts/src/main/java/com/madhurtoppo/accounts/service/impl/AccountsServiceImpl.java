@@ -68,6 +68,7 @@ public class AccountsServiceImpl implements IAccountsService {
         return true;
     }
 
+
     /**
      * @param accountNumber - Input Account Number
      * @return boolean indicating if the delete of Account details is successful or not
@@ -82,6 +83,17 @@ public class AccountsServiceImpl implements IAccountsService {
         accountDataChangedEvent.setMobileNumber(account.getMobileNumber());
         accountDataChangedEvent.setAccountNumber(0L);
         eventGateway.publish(accountDataChangedEvent);
+        accountsRepository.save(account);
+        return true;
+    }
+
+
+    @Override
+    public boolean updateMobileNumber(String oldMobileNumber, String newMobileNumber) {
+        Accounts account = accountsRepository.findByMobileNumberAndActiveSw(oldMobileNumber,
+                AccountsConstants.ACTIVE_SW).orElseThrow(() -> new ResourceNotFoundException("Account", "mobileNumber",
+                oldMobileNumber));
+        account.setMobileNumber(newMobileNumber);
         accountsRepository.save(account);
         return true;
     }

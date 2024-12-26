@@ -12,11 +12,13 @@ public interface ICustomerService {
      */
     void createCustomer(Customer customerDto);
 
+
     /**
      * @param mobileNumber - Input Mobile Number
      * @return Accounts Details based on a given mobileNumber
      */
     CustomerDto fetchCustomer(String mobileNumber);
+
 
     /**
      * @param customerDto - CustomerDto Object
@@ -24,9 +26,19 @@ public interface ICustomerService {
      */
     boolean updateCustomer(CustomerUpdatedEvent customerDto);
 
+
     /**
      * @param customerId - Input Customer ID
      * @return boolean indicating if the delete of Customer details is successful or not
      */
     boolean deleteCustomer(String customerId);
+
+
+    /**
+     * @param mobileNumber - Input Mobile Number
+     * @param newMobileNumber - Updated Mobile Number
+     * @return boolean indicating if the update of Mobile Number is successful or not
+     */
+    boolean updateMobileNumber(String mobileNumber, String newMobileNumber);
+
 }

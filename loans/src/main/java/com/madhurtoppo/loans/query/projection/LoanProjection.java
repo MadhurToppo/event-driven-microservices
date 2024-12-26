@@ -1,5 +1,6 @@
 package com.madhurtoppo.loans.query.projection;
 
+import com.madhurtoppo.common.event.LoanMobileUpdatedEvent;
 import com.madhurtoppo.loans.command.event.LoanCreatedEvent;
 import com.madhurtoppo.loans.command.event.LoanDeletedEvent;
 import com.madhurtoppo.loans.command.event.LoanUpdatedEvent;
@@ -37,6 +38,12 @@ public class LoanProjection {
     @EventHandler
     public void on(LoanDeletedEvent event) {
         iLoansService.deleteLoan(event.getLoanNumber());
+    }
+
+
+    @EventHandler
+    public void on(LoanMobileUpdatedEvent loanMobileUpdatedEvent) {
+        iLoansService.updateMobileNumber(loanMobileUpdatedEvent.getMobileNumber(), loanMobileUpdatedEvent.getNewMobileNumber());
     }
 
 }

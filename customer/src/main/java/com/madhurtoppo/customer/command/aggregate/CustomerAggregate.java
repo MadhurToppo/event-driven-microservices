@@ -1,6 +1,10 @@
 package com.madhurtoppo.customer.command.aggregate;
 
+import com.madhurtoppo.common.command.RollbackCustomerMobileCommand;
+import com.madhurtoppo.common.command.UpdateCustomerMobileCommand;
 import com.madhurtoppo.common.event.CustomerDataChangedEvent;
+import com.madhurtoppo.common.event.CustomerMobileRollbackedEvent;
+import com.madhurtoppo.common.event.CustomerMobileUpdatedEvent;
 import com.madhurtoppo.customer.command.CreateCustomerCommand;
 import com.madhurtoppo.customer.command.DeleteCustomerCommand;
 import com.madhurtoppo.customer.command.UpdateCustomerCommand;
@@ -24,6 +28,7 @@ public class CustomerAggregate {
     private String email;
     private String mobileNumber;
     private boolean activeSw;
+    private String errorMsg;
 
 
     public CustomerAggregate() {
@@ -80,6 +85,35 @@ public class CustomerAggregate {
     @EventSourcingHandler
     public void on(CustomerDeletedEvent customerDeletedEvent) {
         this.activeSw = customerDeletedEvent.isActiveSw();
+    }
+
+
+    @CommandHandler
+    public void handle(UpdateCustomerMobileCommand updateCustomerMobileCommand) {
+        CustomerMobileUpdatedEvent customerMobileUpdatedEvent = new CustomerMobileUpdatedEvent();
+        BeanUtils.copyProperties(updateCustomerMobileCommand, customerMobileUpdatedEvent);
+        AggregateLifecycle.apply(customerMobileUpdatedEvent);
+    }
+
+
+    @EventSourcingHandler
+    public void on(CustomerMobileUpdatedEvent customerUpdatedEvent) {
+        this.mobileNumber = customerUpdatedEvent.getNewMobileNumber();
+    }
+
+
+    @CommandHandler
+    public void handle(RollbackCustomerMobileCommand rollbackCustomerMobileCommand) {
+        CustomerMobileRollbackedEvent customerMobileRollbackedEvent = new CustomerMobileRollbackedEvent();
+        BeanUtils.copyProperties(rollbackCustomerMobileCommand, customerMobileRollbackedEvent);
+        AggregateLifecycle.apply(customerMobileRollbackedEvent);
+    }
+
+
+    @EventSourcingHandler
+    public void on(CustomerMobileRollbackedEvent customerMobileRollbackedEvent) {
+        this.mobileNumber = customerMobileRollbackedEvent.getMobileNumber();
+        this.errorMsg = customerMobileRollbackedEvent.getErrorMsg();
     }
 
 }

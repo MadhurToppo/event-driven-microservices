@@ -33,4 +33,14 @@ public interface ILoansService {
      */
     boolean deleteLoan(Long loanNumber);
 
+
+    /**
+     * Update mobile number associated with a loan
+     *
+     * @param oldMobileNumber - original mobile number
+     * @param newMobileNumber - new mobile number
+     * @return boolean indicating if the update of mobile number is successful or not
+     */
+    boolean updateMobileNumber(String oldMobileNumber, String newMobileNumber);
+
 }
