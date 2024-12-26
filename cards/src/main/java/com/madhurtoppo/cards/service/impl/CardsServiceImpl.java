@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.Random;
@@ -111,7 +112,7 @@ public class CardsServiceImpl implements ICardsService {
     private void updateLoanMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
         log.info("Sending message to updateLoanMobileNumber {}", mobileNumberUpdateDto);
         var result = streamBridge.send("updateLoanMobileNumber-out-0", mobileNumberUpdateDto);
-        log.info("Message sent to updateLoanMobileNumber {}", result);
+        log.info("Is the updateLoanMobileNumber successfully sent {}", result);
     }
 
 

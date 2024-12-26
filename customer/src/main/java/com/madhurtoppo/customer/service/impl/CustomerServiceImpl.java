@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -72,6 +73,7 @@ public class CustomerServiceImpl implements ICustomerService {
 
 
     @Override
+    @Transactional
     public boolean updateMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
         String currentMobileNumber = mobileNumberUpdateDto.getCurrentMobileNumber();
         Customer customer = customerRepository.findByMobileNumberAndActiveSw(currentMobileNumber, true).orElseThrow(
@@ -83,10 +85,23 @@ public class CustomerServiceImpl implements ICustomerService {
         return true;
     }
 
+
     private void updateAccountMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
         log.info("Sending message to updateAccountMobileNumber {}", mobileNumberUpdateDto);
         var result = streamBridge.send("updateAccountMobileNumber-out-0", mobileNumberUpdateDto);
         log.info("Message sent to updateAccountMobileNumber {}", result);
+    }
+
+
+    @Override
+    public boolean rollbackMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        String newMobileNumber = mobileNumberUpdateDto.getNewMobileNumber();
+        Customer customer = customerRepository.findByMobileNumberAndActiveSw(newMobileNumber, true).orElseThrow(
+                () -> new ResourceNotFoundException("Customer", "mobileNumber", newMobileNumber)
+        );
+        customer.setMobileNumber(mobileNumberUpdateDto.getCurrentMobileNumber());
+        customerRepository.save(customer);
+        return true;
     }
 
 }
