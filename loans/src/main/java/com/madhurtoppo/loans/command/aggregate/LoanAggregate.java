@@ -95,6 +95,7 @@ public class LoanAggregate {
         LoanMobileUpdatedEvent loanMobileUpdatedEvent = new LoanMobileUpdatedEvent();
         BeanUtils.copyProperties(updateLoanMobileCommand, loanMobileUpdatedEvent);
         AggregateLifecycle.apply(loanMobileUpdatedEvent);
+//        throw new RuntimeException("An error occurred while processing UpdateLoanMobileCommand");
     }
 
 
