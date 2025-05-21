@@ -15,4 +15,6 @@ public final class CustomerConstants {
     public static final String MESSAGE_500_DELETE = "Delete operation failed. Please try again or contact Dev team";
     public static final boolean ACTIVE_SW = true;
     public static final boolean IN_ACTIVE_SW = false;
+    public static final String MOBILE_UPD_SUCCESS_MESSAGE = "Mobile Number updation successful in all services";
+    public static final String MOBILE_UPD_FAILURE_MESSAGE = "Mobile Number updation failed in all services";
 }
